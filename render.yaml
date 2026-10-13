@@ -1,0 +1,29 @@
+# Render Blueprint Specification for CertiGuard Platform
+# Deploys Managed PostgreSQL 16/18 and Spring Boot Backend Web Service
+services:
+  - type: web
+    name: certiguard-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: certiguard-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://certiguard.vercel.app,http://localhost:3000
+
+databases:
+  - name: certiguard-postgres
+    plan: free
+    region: oregon
+    databaseName: digital_certificate_db
+    user: certiguard_user
