@@ -23,15 +23,18 @@ public class IssuerService {
     private final IssuerRepository issuerRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final DigitalSignatureService digitalSignatureService;
 
     public IssuerService(
             IssuerRepository issuerRepository,
             UserRepository userRepository,
-            RoleRepository roleRepository
+            RoleRepository roleRepository,
+            DigitalSignatureService digitalSignatureService
     ) {
         this.issuerRepository = issuerRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.digitalSignatureService = digitalSignatureService;
     }
 
     public IssuerResponse registerIssuerForUser(IssuerRegistrationRequest request, String userEmail) {
@@ -117,6 +120,12 @@ public class IssuerService {
                 .orElseThrow(() -> new IllegalArgumentException("Issuer not found with ID: " + id));
 
         issuer.setStatus(IssuerStatus.APPROVED);
+
+        if (issuer.getPublicKeyBase64() == null || issuer.getPrivateKeyBase64() == null) {
+            java.security.KeyPair keyPair = digitalSignatureService.generateRsaKeyPair();
+            issuer.setPublicKeyBase64(digitalSignatureService.encodePublicKey(keyPair.getPublic()));
+            issuer.setPrivateKeyBase64(digitalSignatureService.encodePrivateKey(keyPair.getPrivate()));
+        }
 
         User user = issuer.getUser();
         Role issuerRole = roleRepository.findByName("VERIFIED_ISSUER")

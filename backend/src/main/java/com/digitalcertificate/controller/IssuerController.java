@@ -39,6 +39,12 @@ public class IssuerController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @GetMapping("/directory")
+    public ResponseEntity<List<IssuerResponse>> getApprovedIssuerDirectory() {
+        List<IssuerResponse> issuers = issuerService.getIssuersByStatus(IssuerStatus.APPROVED);
+        return ResponseEntity.ok(issuers);
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('SYSTEM_ADMIN')")
     public ResponseEntity<List<IssuerResponse>> getAllIssuers(

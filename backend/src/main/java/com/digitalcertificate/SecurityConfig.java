@@ -45,6 +45,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/health", "/api/health/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**", "/api/certificates/verify/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificate-types").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificates").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificates/*").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificates/*/pdf").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/issuers/directory").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
